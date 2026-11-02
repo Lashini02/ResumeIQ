@@ -1,0 +1,258 @@
+
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import fitz
+import re
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+app = Flask(__name__)
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
+
+app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
+
+SKILLS = [
+    "python", "java", "javascript", "typescript",
+    "react", "node.js", "flask", "django",
+    "html", "css", "sql", "mysql", "mongodb",
+    "excel", "power bi", "tableau",
+    "machine learning", "data analysis",
+    "communication", "teamwork", "problem solving",
+    "project management", "business analysis",
+    "requirements gathering", "agile", "scrum",
+    "jira", "manual testing", "automation testing",
+    "selenium", "playwright", "api testing",
+    "cybersecurity", "networking", "linux",
+    "penetration testing", "ethical hacking",
+    "risk management", "aws", "docker",
+    "git", "github", "c++", "c#",
+    "postman", "figma", "rest api"
+]
+
+
+def extract_resume_text(file_bytes):
+    """Extract text from an uploaded PDF in memory."""
+
+    pdf = fitz.open(
+        stream=file_bytes,
+        filetype="pdf"
+    )
+
+    try:
+        if pdf.is_encrypted:
+            raise ValueError(
+                "Password-protected PDFs are not supported."
+            )
+
+        text = ""
+
+        for page in pdf:
+            text += page.get_text() + "\n"
+
+        return text.strip()
+
+    finally:
+        pdf.close()
+
+
+def extract_skills(text):
+    """Identify skills from the supplied text."""
+
+    text = text.lower()
+    found = []
+
+    for skill in SKILLS:
+        pattern = (
+            r"(?<!\w)" +
+            re.escape(skill.lower()) +
+            r"(?!\w)"
+        )
+
+        if re.search(pattern, text):
+            found.append(skill)
+
+    return found
+
+
+def get_similarity(resume_text, job_description):
+    """Calculate TF-IDF cosine similarity."""
+
+    try:
+        vectorizer = TfidfVectorizer(
+            stop_words="english",
+            ngram_range=(1, 2)
+        )
+
+        vectors = vectorizer.fit_transform([
+            resume_text,
+            job_description
+        ])
+
+        score = cosine_similarity(
+            vectors[0:1],
+            vectors[1:2]
+        )[0][0]
+
+        return round(float(score) * 100, 2)
+
+    except ValueError:
+        return 0
+
+
+def analyze_resume(resume_text, job_description):
+
+    resume_skills = extract_skills(resume_text)
+    job_skills = extract_skills(job_description)
+
+    matched = [
+        skill for skill in job_skills
+        if skill in resume_skills
+    ]
+
+    missing = [
+        skill for skill in job_skills
+        if skill not in resume_skills
+    ]
+
+    similarity = get_similarity(
+        resume_text,
+        job_description
+    )
+
+    if job_skills:
+        skill_score = (
+            len(matched) / len(job_skills)
+        ) * 100
+
+        final_score = (
+            skill_score * 0.70
+            + similarity * 0.30
+        )
+    else:
+        final_score = similarity
+
+    suggestions = []
+
+    if missing:
+        suggestions.append(
+            "Review the missing skills and add relevant "
+            "ones only if you genuinely possess them."
+        )
+
+    if len(resume_text.split()) < 150:
+        suggestions.append(
+            "Consider adding more details about your "
+            "education, projects and achievements."
+        )
+
+    if not resume_skills:
+        suggestions.append(
+            "Include clearly written technical and "
+            "professional skills where relevant."
+        )
+
+    if not suggestions:
+        suggestions.append(
+            "Good keyword coverage. Consider adding "
+            "measurable achievements to strengthen your CV."
+        )
+
+    return {
+        "score": round(final_score, 2),
+        "similarity": similarity,
+        "matched_skills": matched,
+        "missing_skills": missing,
+        "resume_skills": resume_skills,
+        "job_skills": job_skills,
+        "suggestions": suggestions,
+        "word_count": len(resume_text.split())
+    }
+
+
+@app.route("/api/analyze", methods=["POST"])
+def analyze():
+
+    if "resume" not in request.files:
+        return jsonify({
+            "error": "Please upload a resume."
+        }), 400
+
+    resume = request.files["resume"]
+
+    job_description = request.form.get(
+        "job_description", ""
+    ).strip()
+
+    if not resume.filename:
+        return jsonify({
+            "error": "Please select a PDF file."
+        }), 400
+
+    if not resume.filename.lower().endswith(".pdf"):
+        return jsonify({
+            "error": "Only PDF files are supported."
+        }), 400
+
+    if not job_description:
+        return jsonify({
+            "error": "Please enter a job description."
+        }), 400
+
+    if len(job_description.split()) < 5:
+        return jsonify({
+            "error": "Please enter a more detailed job description."
+        }), 400
+
+    try:
+        file_bytes = resume.read()
+
+        if not file_bytes.startswith(b"%PDF-"):
+            return jsonify({
+                "error": "Invalid PDF file."
+            }), 400
+
+        resume_text = extract_resume_text(file_bytes)
+
+        if len(resume_text) < 30:
+            return jsonify({
+                "error": "Could not extract text. "
+                         "This may be a scanned PDF."
+            }), 400
+
+        results = analyze_resume(
+            resume_text,
+            job_description
+        )
+
+        results["filename"] = resume.filename
+
+        return jsonify(results)
+
+    except Exception as error:
+        return jsonify({
+            "error": str(error)
+        }), 400
+
+
+@app.errorhandler(413)
+def file_too_large(error):
+    return jsonify({
+        "error": "PDF must be smaller than 5 MB."
+    }), 413
+
+
+@app.route("/api/health", methods=["GET"])
+def health():
+    return jsonify({
+        "status": "success",
+        "message": "ResumeIQ backend is running!"
+    })
+
+
+if __name__ == "__main__":
+    app.run(
+        host="127.0.0.1",
+        port=5000,
+        debug=True
+    )
