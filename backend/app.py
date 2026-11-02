@@ -2,6 +2,8 @@ from section_detector import detect_resume_sections
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from nlp_analyzer import analyze_job_match
+from flask import send_file
+from report_generator import generate_analysis_report
 import fitz
 import re
 
@@ -190,12 +192,69 @@ def file_too_large(error):
     }), 413
 
 
-@app.route("/api/health", methods=["GET"])
-def health():
-    return jsonify({
-        "status": "success",
-        "message": "ResumeIQ backend is running!"
-    })
+@app.route("/api/report", methods=["POST"])
+def download_report():
+
+    try:
+        # Get uploaded resume and job description
+        resume_file = request.files.get("resume")
+        job_description = request.form.get("job_description", "")
+
+        if not resume_file:
+            return jsonify({
+                "error": "Please upload a resume."
+            }), 400
+
+        if not resume_file.filename.lower().endswith(".pdf"):
+            return jsonify({
+                "error": "Only PDF files are supported."
+            }), 400
+
+        if not job_description.strip():
+            return jsonify({
+                "error": "Please enter a job description."
+            }), 400
+
+        # Read PDF and extract text
+        file_bytes = resume_file.read()
+
+        if not file_bytes.startswith(b"%PDF-"):
+            return jsonify({
+                "error": "Invalid PDF file."
+            }), 400
+
+        resume_text = extract_resume_text(file_bytes)
+
+        if len(resume_text.strip()) < 30:
+            return jsonify({
+                "error": "Could not extract enough text from this PDF."
+            }), 400
+
+        # Run the same analysis used by the application
+        analysis = analyze_resume(
+            resume_text,
+            job_description
+        )
+
+        # Generate PDF report
+        pdf_buffer = generate_analysis_report(
+            resume_file.filename,
+            analysis
+        )
+
+        return send_file(
+            pdf_buffer,
+            mimetype="application/pdf",
+            as_attachment=True,
+            download_name="ResumeIQ_Analysis_Report.pdf"
+        )
+
+    except Exception as error:
+        print("PDF report error:", error)
+
+        return jsonify({
+            "error": "Unable to generate the PDF report."
+        }), 500
 
 
 if __name__ == "__main__":
