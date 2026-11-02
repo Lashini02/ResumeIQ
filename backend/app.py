@@ -1,4 +1,4 @@
-
+from section_detector import detect_resume_sections
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import fitz
@@ -166,6 +166,7 @@ def analyze_resume(resume_text, job_description):
         "resume_skills": resume_skills,
         "job_skills": job_skills,
         "suggestions": suggestions,
+        "sections": detect_resume_sections(resume_text),
         "word_count": len(resume_text.split())
     }
 
