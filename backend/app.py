@@ -1,6 +1,7 @@
 from section_detector import detect_resume_sections
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from nlp_analyzer import analyze_job_match
 import fitz
 import re
 
@@ -102,73 +103,19 @@ def get_similarity(resume_text, job_description):
 
 def analyze_resume(resume_text, job_description):
 
-    resume_skills = extract_skills(resume_text)
-    job_skills = extract_skills(job_description)
-
-    matched = [
-        skill for skill in job_skills
-        if skill in resume_skills
-    ]
-
-    missing = [
-        skill for skill in job_skills
-        if skill not in resume_skills
-    ]
-
-    similarity = get_similarity(
+    # Run improved NLP analysis
+    analysis = analyze_job_match(
         resume_text,
         job_description
     )
 
-    if job_skills:
-        skill_score = (
-            len(matched) / len(job_skills)
-        ) * 100
+    # Detect resume sections
+    analysis["sections"] = detect_resume_sections(
+        resume_text
+    )
 
-        final_score = (
-            skill_score * 0.70
-            + similarity * 0.30
-        )
-    else:
-        final_score = similarity
+    return analysis
 
-    suggestions = []
-
-    if missing:
-        suggestions.append(
-            "Review the missing skills and add relevant "
-            "ones only if you genuinely possess them."
-        )
-
-    if len(resume_text.split()) < 150:
-        suggestions.append(
-            "Consider adding more details about your "
-            "education, projects and achievements."
-        )
-
-    if not resume_skills:
-        suggestions.append(
-            "Include clearly written technical and "
-            "professional skills where relevant."
-        )
-
-    if not suggestions:
-        suggestions.append(
-            "Good keyword coverage. Consider adding "
-            "measurable achievements to strengthen your CV."
-        )
-
-    return {
-        "score": round(final_score, 2),
-        "similarity": similarity,
-        "matched_skills": matched,
-        "missing_skills": missing,
-        "resume_skills": resume_skills,
-        "job_skills": job_skills,
-        "suggestions": suggestions,
-        "sections": detect_resume_sections(resume_text),
-        "word_count": len(resume_text.split())
-    }
 
 
 @app.route("/api/analyze", methods=["POST"])
