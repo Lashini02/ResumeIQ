@@ -7,11 +7,14 @@ from sklearn.metrics.pairwise import cosine_similarity
 # Canonical skill names and common variations.
 # Add more skills and variations as the project grows.
 SKILL_ALIASES = {
+    # --------------------------------------------------------------------------
+    # EXISTING BASE SKILLS
+    # --------------------------------------------------------------------------
     "python": ["python"],
     "java": ["java"],
     "javascript": ["javascript", "js"],
     "typescript": ["typescript", "ts"],
-    "react": ["react", "react.js"],
+    "react": ["react", "react.js", "reactjs"],
     "node.js": ["node.js", "nodejs", "node"],
     "flask": ["flask"],
     "django": ["django"],
@@ -19,45 +22,159 @@ SKILL_ALIASES = {
     "css": ["css", "css3"],
     "sql": ["sql"],
     "mysql": ["mysql"],
-    "mongodb": ["mongodb", "mongo db"],
-    "excel": ["excel", "microsoft excel"],
+    "mongodb": ["mongodb", "mongo db", "mongo"],
+    "excel": ["excel", "microsoft excel", "ms excel"],
     "power bi": ["power bi", "powerbi"],
     "tableau": ["tableau"],
     "machine learning": ["machine learning", "ml"],
     "data analysis": ["data analysis", "data analytics"],
-    "communication": ["communication", "communication skills"],
-    "teamwork": ["teamwork", "team work"],
-    "problem solving": ["problem solving", "problem-solving"],
-    "project management": ["project management"],
-    "business analysis": ["business analysis"],
+    "communication": ["communication", "communication skills", "verbal communication", "written communication"],
+    "teamwork": ["teamwork", "team work", "collaboration", "cross functional collaboration"],
+    "problem solving": ["problem solving", "problem-solving", "analytical problem solving", "complex problem solving"],
+    "project management": ["project management", "project planning"],
+    "business analysis": ["business analysis", "ba"],
     "requirements gathering": [
         "requirements gathering",
         "requirement gathering",
-        "requirements elicitation"
+        "requirements elicitation",
+        "requirements analysis"
     ],
-    "agile": ["agile"],
-    "scrum": ["scrum"],
+    "agile": ["agile", "agile methodologies", "agile practices"],
+    "scrum": ["scrum", "scrum framework"],
     "jira": ["jira"],
     "manual testing": ["manual testing"],
-    "automation testing": ["automation testing", "test automation"],
-    "selenium": ["selenium"],
+    "automation testing": ["automation testing", "test automation", "ui automation testing"],
+    "selenium": ["selenium", "selenium webdriver"],
     "playwright": ["playwright"],
-    "api testing": ["api testing", "api test"],
-    "cybersecurity": ["cybersecurity", "cyber security"],
-    "networking": ["networking", "computer networking"],
-    "linux": ["linux"],
-    "penetration testing": ["penetration testing", "pentesting"],
+    "api testing": ["api testing", "api test", "api test automation"],
+    "cybersecurity": ["cybersecurity", "cyber security", "information security"],
+    "networking": ["networking", "computer networking", "network security"],
+    "linux": ["linux", "linux os"],
+    "penetration testing": ["penetration testing", "pentesting", "pen testing"],
     "ethical hacking": ["ethical hacking"],
-    "risk management": ["risk management"],
+    "risk management": ["risk management", "risk assessment"],
     "aws": ["aws", "amazon web services"],
     "docker": ["docker"],
     "git": ["git"],
     "github": ["github"],
-    "c++": ["c++"],
-    "c#": ["c#"],
+    "c++": ["c++", "cpp"],
+    "c#": ["c#", "csharp"],
     "postman": ["postman"],
     "figma": ["figma"],
-    "rest api": ["rest api", "restful api"]
+    "rest api": ["rest api", "restful api", "rest apis", "restful apis"],
+
+    # --------------------------------------------------------------------------
+    # NEWLY ADDED TECHNICAL & DEVOPS SKILLS
+    # --------------------------------------------------------------------------
+    "azure": ["azure", "microsoft azure"],
+    "gcp": ["gcp", "google cloud", "google cloud platform"],
+    "kubernetes": ["kubernetes", "k8s"],
+    "ci/cd": ["ci/cd", "cicd", "continuous integration", "continuous deployment"],
+    "terraform": ["terraform"],
+    "jenkins": ["jenkins"],
+    "microservices": ["microservices", "microservices architecture"],
+    "system design": ["system design", "software architecture"],
+    "postgresql": ["postgresql", "postgres"],
+    "redis": ["redis"],
+    "graphql": ["graphql"],
+    "golang": ["golang", "go"],
+    "rust": ["rust"],
+    "ruby": ["ruby", "ruby on rails"],
+    "php": ["php"],
+    "laravel": ["laravel"],
+    "nestjs": ["nestjs", "nest.js"],
+    "tailwind css": ["tailwind css", "tailwind"],
+    "bash scripting": ["bash scripting", "shell scripting", "bash"],
+
+    # --------------------------------------------------------------------------
+    # NEWLY ADDED QA & TESTING SKILLS
+    # --------------------------------------------------------------------------
+    "cypress": ["cypress"],
+    "jmeter": ["jmeter", "apache jmeter"],
+    "appium": ["appium"],
+    "regression testing": ["regression testing"],
+    "integration testing": ["integration testing"],
+    "unit testing": ["unit testing"],
+    "smoke testing": ["smoke testing", "sanity testing"],
+    "user acceptance testing": ["user acceptance testing", "uat"],
+    "performance testing": ["performance testing", "load testing"],
+    "security testing": ["security testing"],
+    "test planning": ["test planning", "test strategy"],
+    "test case design": ["test case design", "test execution"],
+    "defect management": ["defect management", "bug tracking", "defect triage"],
+    "bdd": ["bdd", "behavior driven development", "bdd framework"],
+    "tdd": ["tdd", "test driven development"],
+
+    # --------------------------------------------------------------------------
+    # NEWLY ADDED MOBILE & UI/UX SKILLS
+    # --------------------------------------------------------------------------
+    "flutter": ["flutter"],
+    "react native": ["react native"],
+    "swift": ["swift", "ios development"],
+    "kotlin": ["kotlin", "android development"],
+    "ui/ux design": ["ui/ux design", "ui ux", "user interface design", "user experience design"],
+    "user research": ["user research", "wireframing"],
+    "product management": ["product management"],
+
+    # --------------------------------------------------------------------------
+    # NEWLY ADDED DATA SCIENCE & AI SKILLS
+    # --------------------------------------------------------------------------
+    "deep learning": ["deep learning", "dl"],
+    "nlp": ["nlp", "natural language processing"],
+    "computer vision": ["computer vision", "cv"],
+    "prompt engineering": ["prompt engineering"],
+    "etl": ["etl", "etl pipelines", "data warehousing"],
+    "snowflake": ["snowflake"],
+    "big data": ["big data", "apache spark", "spark"],
+    "data visualization": ["data visualization", "dashboard creation"],
+
+    # --------------------------------------------------------------------------
+    # NEWLY ADDED HUMAN RESOURCES (HR) SKILLS
+    # --------------------------------------------------------------------------
+    "talent acquisition": ["talent acquisition", "full cycle recruiting", "recruitment"],
+    "technical sourcing": ["technical sourcing", "candidate screening"],
+    "applicant tracking systems": ["applicant tracking systems", "ats management", "ats"],
+    "employee onboarding": ["employee onboarding", "employee offboarding"],
+    "employee engagement": ["employee engagement", "employee retention"],
+    "performance management": ["performance management", "performance reviews"],
+    "payroll administration": ["payroll administration", "compensation and benefits"],
+    "hr compliance": ["hr compliance", "labor laws knowledge"],
+
+    # --------------------------------------------------------------------------
+    # NEWLY ADDED DIGITAL MARKETING SKILLS
+    # --------------------------------------------------------------------------
+    "seo": ["seo", "search engine optimization"],
+    "sem": ["sem", "search engine marketing", "google ads", "ppc"],
+    "social media marketing": ["social media marketing", "smm"],
+    "content marketing": ["content marketing", "copywriting", "content creation"],
+    "email marketing": ["email marketing", "mailchimp"],
+    "google analytics": ["google analytics", "ga4", "digital analytics"],
+
+    # --------------------------------------------------------------------------
+    # NEWLY ADDED BUSINESS & ENTERPRISE TOOLS
+    # --------------------------------------------------------------------------
+    "sap": ["sap"],
+    "salesforce": ["salesforce"],
+    "hubspot": ["hubspot"],
+    "financial modeling": ["financial modeling", "budgeting", "forecasting"],
+    "supply chain management": ["supply chain management"],
+    "sdlc": ["sdlc", "software development life cycle"],
+
+    # --------------------------------------------------------------------------
+    # NEWLY ADDED UNIVERSAL SOFT SKILLS
+    # --------------------------------------------------------------------------
+    "critical thinking": ["critical thinking", "logical reasoning"],
+    "adaptability": ["adaptability", "flexibility", "adaptability to change"],
+    "time management": ["time management", "prioritization", "task prioritization"],
+    "conflict resolution": ["conflict resolution", "conflict management"],
+    "stakeholder management": ["stakeholder management", "stakeholder interaction"],
+    "technical writing": ["technical writing", "technical documentation"],
+    "presentation skills": ["presentation skills"],
+    "emotional intelligence": ["emotional intelligence", "eq"],
+    "attention to detail": ["attention to detail"],
+    "decision making": ["decision making"],
+    "leadership": ["leadership", "mentorship", "coaching"]
+
 }
 
 
