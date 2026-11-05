@@ -569,7 +569,7 @@ function App() {
       </main>
 
       <footer>
-        <p>ResumeIQ © 2026 · Built with React & Python</p>
+        <p>ResumeIQ © 2026 · Built with React & Python · Developed by Lashini Chamodi</p>
       </footer>
     </div>
   );
