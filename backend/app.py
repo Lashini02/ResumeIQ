@@ -36,7 +36,226 @@ SKILLS = [
     "penetration testing", "ethical hacking",
     "risk management", "aws", "docker",
     "git", "github", "c++", "c#",
-    "postman", "figma", "rest api"
+    "postman", "figma", "rest api", 
+    # Cloud & DevOps
+    "azure", "gcp", "kubernetes", "ci/cd", "terraform", "jenkins", "microservices", "system design",
+    # Data & AI
+    "postgresql", "redis", "deep learning", "nlp", "prompt engineering", "etl", "snowflake", "big data",
+    # QA & Security
+    "cypress", "jmeter", "appium", "splunk", "bash scripting", "cloud security",
+    # UI/UX & Product
+    "ui/ux design", "user research", "product management", "sdlc",
+    # Universal Soft Skills
+    "critical thinking", "emotional intelligence", "adaptability", "time management",
+    "conflict resolution", "stakeholder management", "technical writing", "presentation skills", "negotiation",# Mobile Dev
+    "flutter", "react native", "swift", "kotlin", "ionic",
+    # Digital Marketing
+    "seo", "sem", "social media marketing", "content marketing", "google analytics",
+    # Business & Enterprise
+    "sap", "salesforce", "hubspot", "financial modeling", "budgeting", "supply chain management",
+    # Languages & Tech
+    "golang", "rust", "ruby", "php", "laravel", "nestjs", "tailwind css", "serverless", "websockets",
+    # Additional Soft Skills
+    "attention to detail", "decision making", "stress management", "work ethic",
+    "remote collaboration", "cultural awareness","functional testing",
+    "regression testing",
+    "integration testing",
+    "unit testing",
+    "smoke testing",
+    "user acceptance testing",
+    "performance testing",
+    "load testing",
+    "security testing",
+    "penetration testing",
+    "cross browser testing",
+    "mobile testing",
+    "exploratory testing",
+    "bug tracking",
+    "test planning",
+    "test strategy",
+    "test execution",
+    "test case design",
+    "test data management",
+    "defect management",
+    "root cause analysis",
+    "continuous integration",
+    "continuous deployment",
+    "version control",
+    "object oriented programming",
+    "data structures",
+    "algorithms",
+    "code review",
+    "software architecture",
+    "cloud computing",
+    "database management",
+    "data modeling",
+    "business logic analysis",
+    "analytical thinking",
+    "strategic planning",
+    "resource management",
+    "time management",
+    "crisis management",
+    "client communication",
+    "stakeholder interaction",
+    # Domain Knowledge & Fundamentals
+    "domain knowledge",
+    "business domain understanding",
+    "software development life cycle knowledge",
+    "testing lifecycle knowledge",
+    "relational database knowledge",
+    "nosql database knowledge",
+    "system architecture understanding",
+    "technical documentation knowledge",
+
+    # Testing & Automation Techniques
+    "api test automation",
+    "ui automation testing",
+    "backend testing",
+    "frontend testing",
+    "end to end testing",
+    "smoke and sanity testing",
+    "black box testing",
+    "white box testing",
+    "gray box testing",
+    "bdd framework",
+    "tdd methodology",
+    "test automation framework design",
+
+    # Problem Solving & Soft Skills
+    "analytical problem solving",
+    "complex problem solving",
+    "troubleshooting skills",
+    "debugging capabilities",
+    "effective communication",
+    "interpersonal skills",
+    "cross functional collaboration",
+    "adaptability to change",
+
+    # Methodologies & Management
+    "scrum framework understanding",
+    "kanban methodology",
+    "agile practices",
+    "sprint planning",
+    "defect triage management"
+
+  
+        "object oriented programming", "oop concepts", "data structures", "algorithms",
+        "system design", "microservices architecture", "restful apis", "graphql",
+        "design patterns", "clean code", "code review", "refactoring",
+        "unit testing", "integration testing", "test driven development", "tdd",
+        "behavior driven development", "bdd", "front end development", "back end development",
+        "full stack development", "responsive design", "web performance optimization",
+        "ci/cd pipelines", "continuous integration", "continuous deployment",
+        "containerization", "infrastructure as code", "serverless architecture",
+        "cloud native development", "version control management", "git workflow",
+        "semantic versioning", "technical documentation", "api documentation"
+    ,
+
+    # --------------------------------------------------------------------------
+    # 2. QA & AUTOMATION TESTING
+    # --------------------------------------------------------------------------
+    
+        "manual testing", "automation testing", "api testing", "ui testing",
+        "backend testing", "performance testing", "load testing", "stress testing",
+        "security testing", "regression testing", "smoke testing", "sanity testing",
+        "exploratory testing", "user acceptance testing", "uat", "cross browser testing",
+        "mobile automation testing", "framework development", "page object model",
+        "test strategy design", "test plan creation", "test case design",
+        "test execution", "test data management", "defect management",
+        "bug tracking", "root cause analysis", "test automation maintenance"
+    ,
+
+    # --------------------------------------------------------------------------
+    # 3. DATA SCIENCE, AI & ANALYTICS
+    # --------------------------------------------------------------------------
+   
+        "data analysis", "data visualization", "data modeling", "data warehousing",
+        "etl pipeline development", "big data processing", "predictive analytics",
+        "statistical analysis", "machine learning algorithms", "deep learning models",
+        "natural language processing", "nlp", "computer vision", "prompt engineering",
+        "feature engineering", "model training", "model deployment", "model evaluation",
+        "business intelligence", "dashboard creation", "exploratory data analysis",
+        "data cleaning", "data normalization", "a/b testing analysis"
+    ,
+
+    # --------------------------------------------------------------------------
+    # 4. CYBERSECURITY & NETWORKING
+    # --------------------------------------------------------------------------
+    
+        "vulnerability assessment", "penetration testing", "ethical hacking",
+        "network security", "cloud security", "application security",
+        "threat intelligence", "incident response", "security auditing",
+        "identity and access management", "iam", "risk assessment",
+        "siem monitoring", "firewall configuration", "cryptography fundamentals",
+        "zero trust architecture", "compliance standards", "network troubleshooting"
+    ,
+
+    # --------------------------------------------------------------------------
+    # 5. HUMAN RESOURCES (HR) & RECRUITMENT
+    # --------------------------------------------------------------------------
+    
+        "talent acquisition", "full cycle recruiting", "technical sourcing",
+        "candidate screening", "interview scheduling", "applicant tracking systems",
+        "ats management", "employer branding", "employee onboarding",
+        "employee offboarding", "employee engagement", "employee retention",
+        "performance management", "performance reviews", "compensation and benefits",
+        "payroll administration", "hr compliance", "labor laws knowledge",
+        "conflict resolution", "hris management", "organizational development",
+        "succession planning", "training and development", "exit interviews"
+    ,
+
+    # --------------------------------------------------------------------------
+    # 6. MARKETING & DIGITAL STRATEGY
+    # --------------------------------------------------------------------------
+    
+        "search engine optimization", "seo", "search engine marketing", "sem",
+        "pay per click", "ppc advertising", "social media marketing", "smm",
+        "content marketing strategy", "copywriting", "content creation",
+        "email marketing campaigns", "marketing automation", "growth hacking",
+        "brand strategy", "brand positioning", "conversion rate optimization", "cro",
+        "lead generation", "customer acquisition", "funnel optimization",
+        "market research", "competitor analysis", "digital analytics",
+        "campaign management", "influencer marketing", "public relations", "pr strategy"
+    ,
+
+    # --------------------------------------------------------------------------
+    # 7. BUSINESS ANALYSIS & PROJECT MANAGEMENT
+    # --------------------------------------------------------------------------
+   
+        "requirements gathering", "requirements analysis", "business process modeling",
+        "gap analysis", "feasibility study", "functional specification creation",
+        "user story creation", "backlog grooming", "sprint planning",
+        "agile methodologies", "scrum framework", "kanban framework",
+        "project planning", "scope management", "resource allocation",
+        "risk management", "stakeholder management", "change management",
+        "budget planning", "cost estimation", "vendor management","excel","jira","confluence","trello","MS word","MS powerpoint","MS excel","api"
+        "sql","nosql","postgresql","mongodb","redis","data analysis","data visualization","data modeling","data warehousing","etl pipeline development","big data processing","predictive analytics","statistical analysis","machine learning algorithms","deep learning models"
+    ,
+
+    # --------------------------------------------------------------------------
+    # 8. UNIVERSAL SOFT SKILLS (ඕනෑම Field එකකට ගැළපෙන)
+    # --------------------------------------------------------------------------
+   
+        "analytical thinking", "critical thinking", "logical reasoning",
+        "complex problem solving", "decision making", "troubleshooting",
+        "effective communication", "verbal communication", "written communication",
+        "technical writing", "active listening", "presentation skills",
+        "interpersonal skills", "cross functional collaboration", "teamwork",
+        "conflict management", "negotiation skills", "stakeholder alignment",
+        "time management", "task prioritization", "adaptability",
+        "flexibility", "emotional intelligence", "eq", "leadership",
+        "mentorship", "coaching", "ownership mindset", "attention to detail",
+        "work ethic", "stress management", "remote work collaboration","support","customer service","customer support","customer success","client communication","client relationship management"
+        "good communication skills","problem solving","team player","adaptability","time management","critical thinking","leadership skills","interpersonal skills","conflict resolution","decision making","emotional intelligence","negotiation skills","presentation skills","collaboration skills"
+        "AI driven tools","AI tools","AI applications","AI technologies","AI platforms","AI frameworks","AI libraries","AI algorithms","AI models","AI solutions","AI systems","AI research","AI development","AI implementation","AI integration"
+        "english","spanish","french","german","mandarin","japanese","korean","italian","portuguese","russian","arabic","hindi","bengali","urdu","tamil","telugu","marathi","gujarati","punjabi"
+        "digital marketing","social media marketing","content marketing","email marketing","search engine optimization","pay per click","affiliate marketing","inbound marketing","outbound marketing","marketing automation","crm","salesforce","hubspot","zoho","microsoft dynamics","pipedrive","marketo","pardot","mailchimp","constant contact","activecampaign","drip","getresponse","aweber","campaign monitor","sendinblue","convertkit"
+        "SEO","SEM","PPC","CRO","content strategy","content creation","content distribution","content optimization","keyword research","link building","on page SEO","off page SEO","technical SEO","local SEO","mobile SEO","voice search optimization","video marketing","influencer marketing","brand management","brand strategy","brand identity"
+        "sales","sales strategy","sales process","sales pipeline","lead generation","lead nurturing","lead scoring","customer relationship management","crm software","salesforce automation","sales analytics","sales forecasting","sales enablement","sales training","sales coaching"
+        "coordination","organization","planning","prioritization","problem solving","decision making","critical thinking","creativity","innovation","adaptability","flexibility","resilience","emotional intelligence","communication skills","interpersonal skills","teamwork","collaboration","leadership skills"
+        "introvert","extrovert","ambivert","analytical","creative","strategic","tactical","detail oriented","big picture thinker","problem solver","decision maker","innovative","adaptable","flexible","resilient","empathetic","assertive"
+        "requirements gathering","requirements analysis","business process modeling","gap analysis","feasibility study","functional specification creation","user story creation","backlog grooming","sprint planning","agile methodologies","scrum framework","kanban framework"
+    
 ]
 
 
