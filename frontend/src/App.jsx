@@ -11,20 +11,36 @@ import {
   RefreshCw,
   Target,
   Download,
+  Mail,
+  Phone,
+  Contact,
+  Code,
 } from "lucide-react";
-
 import "./App.css";
+
+const API_URL = "http://127.0.0.1:5000";
+
+const SECTION_LABELS = {
+  professional_summary: "Professional Summary",
+  technical_skills: "Technical Skills",
+  work_experience: "Work Experience",
+  education: "Education",
+  projects: "Projects",
+  certifications: "Certifications",
+  achievements: "Achievements",
+  additional_information: "Additional Information",
+};
 
 function App() {
   const [file, setFile] = useState(null);
   const [jobDescription, setJobDescription] = useState("");
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState("");
 
   const handleFileChange = (event) => {
-    const selectedFile = event.target.files[0];
-
+    const selectedFile = event.target.files?.[0];
     setError("");
     setResults(null);
 
@@ -36,12 +52,14 @@ function App() {
     ) {
       setError("Please select a PDF file.");
       setFile(null);
+      event.target.value = "";
       return;
     }
 
     if (selectedFile.size > 5 * 1024 * 1024) {
-      setError("File must be smaller than 5 MB.");
+      setError("Your PDF must be smaller than 5 MB.");
       setFile(null);
+      event.target.value = "";
       return;
     }
 
@@ -50,41 +68,80 @@ function App() {
 
   const handleAnalyze = async (event) => {
     event.preventDefault();
-
     setError("");
     setResults(null);
 
     if (!file) {
-      setError("Please upload your resume.");
+      setError("Please upload your resume first.");
       return;
     }
 
     if (!jobDescription.trim()) {
-      setError("Please enter a job description.");
+      setError("Please paste the job description.");
       return;
     }
 
     setLoading(true);
-
     const formData = new FormData();
-
     formData.append("resume", file);
     formData.append("job_description", jobDescription);
 
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:5000/api/analyze",
-        formData,
-      );
-
+      const response = await axios.post(`${API_URL}/api/analyze`, formData);
       setResults(response.data);
     } catch (err) {
       setError(
         err.response?.data?.error ||
-          "Unable to connect to the server. Please check your backend.",
+          "Could not connect to ResumeIQ. Please check that the backend is running.",
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  const downloadReport = async () => {
+    if (!file || !jobDescription.trim()) {
+      setError("Please upload a resume and enter a job description.");
+      return;
+    }
+
+    setError("");
+    setDownloading(true);
+    const formData = new FormData();
+    formData.append("resume", file);
+    formData.append("job_description", jobDescription);
+
+    try {
+      const response = await axios.post(`${API_URL}/api/report`, formData, {
+        responseType: "blob",
+      });
+
+      const pdfBlob = new Blob([response.data], { type: "application/pdf" });
+      const downloadUrl = window.URL.createObjectURL(pdfBlob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = "ResumeIQ_Analysis_Report.pdf";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => window.URL.revokeObjectURL(downloadUrl), 1000);
+    } catch (err) {
+      let message = "Unable to download the report. Please try again.";
+      if (err.response?.data instanceof Blob) {
+        try {
+          const text = await err.response.data.text();
+          const data = JSON.parse(text);
+          message = data.error || message;
+        } catch {
+          // Keep the default message.
+        }
+      } else if (err.response?.data?.error) {
+        message = err.response.data.error;
+      }
+      setError(message);
+      console.error("PDF download error:", err);
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -93,290 +150,419 @@ function App() {
     setJobDescription("");
     setResults(null);
     setError("");
-
     const input = document.getElementById("resume-upload");
-
     if (input) input.value = "";
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const downloadReport = () => {
-    if (!results) return;
+  const matchedSkills = Array.isArray(results?.matched_skills)
+    ? results.matched_skills
+    : [];
+  const missingSkills = Array.isArray(results?.missing_skills)
+    ? results.missing_skills
+    : [];
+  const resumeSkills = Array.isArray(results?.resume_skills)
+    ? results.resume_skills
+    : [];
+  const matchedKeywords = Array.isArray(results?.matched_keywords)
+    ? results.matched_keywords
+    : [];
+  const missingKeywords = Array.isArray(results?.missing_keywords)
+    ? results.missing_keywords
+    : [];
+  const suggestions = Array.isArray(results?.suggestions)
+    ? results.suggestions
+    : [];
 
-    const report = `
-RESUMEIQ - RESUME ANALYSIS REPORT
-
-Resume: ${results.filename}
-
-Resume Match Score: ${results.score}%
-Text Similarity: ${results.similarity}%
-Resume Word Count: ${results.word_count}
-
-MATCHED SKILLS:
-${results.matched_skills.join(", ") || "None"}
-
-MISSING SKILLS:
-${results.missing_skills.join(", ") || "None"}
-
-SUGGESTIONS:
-${results.suggestions.map((s, i) => `${i + 1}. ${s}`).join("\n")}
-
-Note: This is an experimental keyword and text similarity
-indicator, not a hiring decision or official ATS score.
-`;
-
-    const blob = new Blob([report], {
-      type: "text/plain",
-    });
-
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
-
-    link.href = url;
-    link.download = "ResumeIQ_Report.txt";
-    link.click();
-
-    URL.revokeObjectURL(url);
-  };
+  const sectionData = results?.sections || {};
+  const sectionSummary = sectionData.summary || {};
+  const contactInfo = sectionData.contact_information || {};
+  const score = Math.max(0, Math.min(100, Number(results?.score) || 0));
+  const similarity = Math.max(
+    0,
+    Math.min(100, Number(results?.similarity) || 0),
+  );
 
   return (
     <div className="app">
       <nav className="navbar">
-        <div className="brand">
-          <BrainCircuit size={29} />
+        <a className="brand" href="/" aria-label="ResumeIQ home">
+          <BrainCircuit size={27} />
           <span>ResumeIQ</span>
-        </div>
-
-        <span className="nav-label">AI Resume Analyzer</span>
+        </a>
+        <span className="nav-label">Resume & Job Match Analyzer</span>
       </nav>
 
       <main className="main-container">
-        <section className="hero">
-          <div className="hero-tag">
-            <Sparkles size={15} />
-            SMART RESUME ANALYSIS
-          </div>
-
-          <h1>
-            Your Resume.
-            <br />
-            <span>One Step Closer.</span>
-          </h1>
-
-          <p>
-            Discover how well your resume matches your dream job. Get useful
-            keyword insights and improvement suggestions.
-          </p>
-        </section>
-
-        {!results && (
-          <form className="analyzer-card" onSubmit={handleAnalyze}>
-            <div className="section-heading">
-              <FileText size={22} />
-              <div>
-                <h2>Analyze Your Resume</h2>
-                <p>Upload your CV and enter the target job description.</p>
+        {!results ? (
+          <>
+            <section className="hero">
+              <div className="hero-tag">
+                <Sparkles size={14} />
+                SMART RESUME INSIGHTS
               </div>
-            </div>
+              <h1>
+                Make your next
+                <span> career move count.</span>
+              </h1>
+              <p>
+                Upload your CV and add a job description to see matching skills,
+                missing keywords and practical ways to improve your application.
+              </p>
+            </section>
 
-            <label className="field-label">Upload Resume (PDF)</label>
-
-            <label className="upload-box" htmlFor="resume-upload">
-              <UploadCloud size={38} />
-
-              {file ? (
-                <>
-                  <strong>{file.name}</strong>
-                  <span>
-                    {(file.size / 1024).toFixed(1)} KB · Ready to analyze
-                  </span>
-                </>
-              ) : (
-                <>
-                  <strong>Click to upload your resume</strong>
-                  <span>PDF format · Maximum 5 MB</span>
-                </>
-              )}
-            </label>
-
-            <input
-              id="resume-upload"
-              type="file"
-              accept=".pdf,application/pdf"
-              onChange={handleFileChange}
-              hidden
-            />
-
-            <label className="field-label">Job Description</label>
-
-            <textarea
-              className="job-input"
-              placeholder="Paste the complete job description here..."
-              value={jobDescription}
-              onChange={(event) => setJobDescription(event.target.value)}
-              rows="8"
-            />
-
-            {error && (
-              <div className="error-message">
-                <AlertCircle size={18} />
-                {error}
+            <form className="analyzer-card" onSubmit={handleAnalyze}>
+              <div className="section-heading">
+                <FileText size={22} />
+                <div>
+                  <h2>Start your resume analysis</h2>
+                  <p>
+                    Two quick steps. Your results will appear in one dashboard.
+                  </p>
+                </div>
               </div>
-            )}
 
-            <button className="analyze-button" type="submit" disabled={loading}>
-              {loading ? (
-                <>
-                  <RefreshCw className="spin" size={19} />
-                  Analyzing Resume...
-                </>
-              ) : (
-                <>
-                  Analyze My Resume
-                  <ArrowRight size={19} />
-                </>
+              <label className="field-label" htmlFor="resume-upload">
+                1. Upload your resume
+              </label>
+              <label className="upload-box" htmlFor="resume-upload">
+                <UploadCloud size={34} />
+                {file ? (
+                  <>
+                    <strong>{file.name}</strong>
+                    <span>
+                      {(file.size / 1024).toFixed(1)} KB · Ready to analyze
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <strong>Choose your PDF resume</strong>
+                    <span>Click here to browse · PDF only · Maximum 5 MB</span>
+                  </>
+                )}
+              </label>
+              <input
+                id="resume-upload"
+                type="file"
+                accept=".pdf,application/pdf"
+                onChange={handleFileChange}
+                hidden
+              />
+
+              <label className="field-label" htmlFor="job-description">
+                2. Paste the job description
+              </label>
+              <textarea
+                id="job-description"
+                className="job-input"
+                placeholder="Paste the job responsibilities, requirements and skills here..."
+                value={jobDescription}
+                onChange={(event) => setJobDescription(event.target.value)}
+                rows={7}
+              />
+
+              {error && (
+                <div className="error-message">
+                  <AlertCircle size={18} />
+                  <span>{error}</span>
+                </div>
               )}
-            </button>
 
-            <p className="privacy-text">
-              Your PDF is processed in memory and is not stored by this
-              application.
-            </p>
-          </form>
-        )}
-
-        {results && (
+              <button
+                className="analyze-button"
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <RefreshCw className="spin" size={18} />
+                    Analyzing your resume...
+                  </>
+                ) : (
+                  <>
+                    Analyze my resume
+                    <ArrowRight size={18} />
+                  </>
+                )}
+              </button>
+              <p className="privacy-text">
+                The current prototype processes the uploaded PDF in memory.
+              </p>
+            </form>
+          </>
+        ) : (
           <section className="results-container">
             <div className="result-heading">
               <div>
                 <span className="result-tag">
-                  <Sparkles size={15} /> ANALYSIS COMPLETE
+                  <CheckCircle size={15} />
+                  ANALYSIS COMPLETE
                 </span>
-
-                <h2>Your Resume Report</h2>
-
-                <p>{results.filename}</p>
+                <h1>Your match overview</h1>
+                <p className="file-name">{results.filename || file?.name}</p>
               </div>
-
-              <button className="secondary-button" onClick={resetAnalyzer}>
+              <button
+                className="secondary-button"
+                onClick={resetAnalyzer}
+                type="button"
+              >
                 <RefreshCw size={16} />
-                New Analysis
+                New analysis
               </button>
             </div>
 
-            <div className="score-card">
-              <div className="score-icon">
-                <Target size={27} />
+            <section className="match-hero-card">
+              <div className="match-score-copy">
+                <span className="eyebrow">YOUR RESUME MATCH</span>
+                <div className="score-number">
+                  {score.toFixed(1)}
+                  <small>%</small>
+                </div>
+                <p>
+                  This is an experimental indicator of how closely the resume
+                  text matches the job description.
+                </p>
+                <div className="score-track">
+                  <span style={{ width: `${score}%` }} />
+                </div>
               </div>
+              <div className="match-side-stats">
+                <div className="mini-stat">
+                  <span>Text similarity</span>
+                  <strong>{similarity.toFixed(1)}%</strong>
+                </div>
+                <div className="mini-stat">
+                  <span>Skills matched</span>
+                  <strong>{matchedSkills.length}</strong>
+                </div>
+                <div className="mini-stat">
+                  <span>Skills to review</span>
+                  <strong>{missingSkills.length}</strong>
+                </div>
+              </div>
+            </section>
 
+            <div className="section-intro">
               <div>
-                <h3>{results.score}%</h3>
-                <p>Resume Match Score</p>
-                <span>Based on keyword coverage and text similarity</span>
+                <h2>Skills comparison</h2>
+                <p>
+                  See what already matches and what the job description asks
+                  for.
+                </p>
               </div>
             </div>
 
-            <div className="stats-grid">
-              <div className="stat-card">
-                <span>Text Similarity</span>
-                <strong>{results.similarity}%</strong>
-              </div>
+            <div className="comparison-grid">
+              <article className="result-card matched-card">
+                <div className="card-title">
+                  <CheckCircle size={19} />
+                  <h3>
+                    Matching skills <span>{matchedSkills.length}</span>
+                  </h3>
+                </div>
+                <p className="card-description">
+                  Found in both your resume and the job description.
+                </p>
+                <div className="skill-list">
+                  {matchedSkills.length ? (
+                    matchedSkills.map((skill) => (
+                      <span className="skill matched" key={skill}>
+                        {skill}
+                      </span>
+                    ))
+                  ) : (
+                    <p className="empty-state">No matching skills detected.</p>
+                  )}
+                </div>
+              </article>
 
-              <div className="stat-card">
-                <span>Matched Skills</span>
-                <strong>{results.matched_skills.length}</strong>
-              </div>
-
-              <div className="stat-card">
-                <span>Missing Skills</span>
-                <strong>{results.missing_skills.length}</strong>
-              </div>
-
-              <div className="stat-card">
-                <span>Resume Words</span>
-                <strong>{results.word_count}</strong>
-              </div>
+              <article className="result-card missing-card">
+                <div className="card-title">
+                  <AlertCircle size={19} />
+                  <h3>
+                    Skills to review <span>{missingSkills.length}</span>
+                  </h3>
+                </div>
+                <p className="card-description">
+                  Mention these only if you genuinely have the skills.
+                </p>
+                <div className="skill-list">
+                  {missingSkills.length ? (
+                    missingSkills.map((skill) => (
+                      <span className="skill missing" key={skill}>
+                        {skill}
+                      </span>
+                    ))
+                  ) : (
+                    <p className="empty-state">No missing skills detected.</p>
+                  )}
+                </div>
+              </article>
             </div>
 
-            <div className="result-card">
-              <h3>
-                <CheckCircle size={20} />
-                Matched Skills
-              </h3>
+            {suggestions.length > 0 && (
+              <article className="result-card suggestions-card">
+                <div className="card-title">
+                  <Sparkles size={19} />
+                  <h3>Recommended next steps</h3>
+                </div>
+                <ul className="suggestions">
+                  {suggestions.slice(0, 4).map((suggestion, index) => (
+                    <li key={`${index}-${suggestion}`}>{suggestion}</li>
+                  ))}
+                </ul>
+              </article>
+            )}
 
-              <div className="skill-list">
-                {results.matched_skills.length > 0 ? (
-                  results.matched_skills.map((skill) => (
-                    <span className="skill matched" key={skill}>
-                      {skill}
-                    </span>
-                  ))
+            <div className="dashboard-actions">
+              <button
+                className="analyze-button download-button"
+                type="button"
+                onClick={downloadReport}
+                disabled={downloading}
+              >
+                {downloading ? (
+                  <>
+                    <RefreshCw className="spin" size={17} /> Preparing report...
+                  </>
                 ) : (
-                  <p>No matched skills found.</p>
+                  <>
+                    <Download size={17} /> Download PDF report
+                  </>
                 )}
-              </div>
-            </div>
-
-            <div className="result-card">
-              <h3>
-                <AlertCircle size={20} />
-                Missing Keywords
-              </h3>
-
-              <div className="skill-list">
-                {results.missing_skills.length > 0 ? (
-                  results.missing_skills.map((skill) => (
-                    <span className="skill missing" key={skill}>
-                      {skill}
-                    </span>
-                  ))
-                ) : (
-                  <p>No missing keywords from our skill list.</p>
-                )}
-              </div>
-            </div>
-
-            <div className="result-card">
-              <h3>
-                <Sparkles size={20} />
-                Improvement Suggestions
-              </h3>
-
-              <ul className="suggestions">
-                {results.suggestions.map((suggestion, index) => (
-                  <li key={index}>{suggestion}</li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="result-card">
-              <h3>All Recognized Resume Skills</h3>
-
-              <div className="skill-list">
-                {results.resume_skills.map((skill) => (
-                  <span className="skill matched" key={skill}>
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="report-actions">
-              <button className="analyze-button" onClick={downloadReport}>
-                <Download size={18} />
-                Download Report
               </button>
-
-              <button className="secondary-button" onClick={resetAnalyzer}>
-                Analyze Another Resume
+              <button
+                className="secondary-button"
+                type="button"
+                onClick={resetAnalyzer}
+              >
+                Analyze another resume
               </button>
+            </div>
+
+            {error && (
+              <div className="error-message">
+                <AlertCircle size={18} />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <div className="more-details">
+              <h2>More resume insights</h2>
+              <p className="details-hint">
+                Open a section only when you need more detail.
+              </p>
+
+              {(matchedKeywords.length > 0 || missingKeywords.length > 0) && (
+                <details className="detail-panel">
+                  <summary>Job description keywords</summary>
+                  <div className="comparison-grid compact-grid">
+                    <div>
+                      <h4>Matched keywords</h4>
+                      <div className="skill-list">
+                        {matchedKeywords.length ? (
+                          matchedKeywords.map((word) => (
+                            <span className="skill matched" key={word}>
+                              {word}
+                            </span>
+                          ))
+                        ) : (
+                          <p className="empty-state">None detected.</p>
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <h4>Missing keywords</h4>
+                      <div className="skill-list">
+                        {missingKeywords.length ? (
+                          missingKeywords.map((word) => (
+                            <span className="skill missing" key={word}>
+                              {word}
+                            </span>
+                          ))
+                        ) : (
+                          <p className="empty-state">None detected.</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </details>
+              )}
+
+              {results.sections && (
+                <details className="detail-panel">
+                  <summary>Resume section check</summary>
+                  <div className="section-grid">
+                    {Object.entries(SECTION_LABELS).map(([key, label]) => {
+                      const found = Boolean(sectionData[key]?.found);
+                      return (
+                        <div className="section-item" key={key}>
+                          <span>{label}</span>
+                          <strong className={found ? "found" : "not-found"}>
+                            {found ? "Detected" : "Not detected"}
+                          </strong>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <p className="section-summary">
+                    {sectionSummary.detected_sections ?? 0} of{" "}
+                    {sectionSummary.total_sections ??
+                      Object.keys(SECTION_LABELS).length}{" "}
+                    sections detected
+                  </p>
+                </details>
+              )}
+
+              {results.sections && (
+                <details className="detail-panel">
+                  <summary>Contact information check</summary>
+                  <div className="contact-grid">
+                    <div className="contact-item">
+                      <Mail size={16} />
+                      <span>{contactInfo.email || "Email not detected"}</span>
+                    </div>
+                    <div className="contact-item">
+                      <Phone size={16} />
+                      <span>{contactInfo.phone || "Phone not detected"}</span>
+                    </div>
+                    <div className="contact-item">
+                      <Contact size={16} />
+                      <span>
+                        {contactInfo.linkedin || "LinkedIn not detected"}
+                      </span>
+                    </div>
+                    <div className="contact-item">
+                      <Code size={16} />
+                      <span>{contactInfo.github || "GitHub not detected"}</span>
+                    </div>
+                  </div>
+                </details>
+              )}
+
+              <details className="detail-panel">
+                <summary>
+                  All skills found in your resume ({resumeSkills.length})
+                </summary>
+                <div className="skill-list detail-skill-list">
+                  {resumeSkills.length ? (
+                    resumeSkills.map((skill) => (
+                      <span className="skill neutral-skill" key={skill}>
+                        {skill}
+                      </span>
+                    ))
+                  ) : (
+                    <p className="empty-state">No skills detected.</p>
+                  )}
+                </div>
+              </details>
             </div>
 
             <p className="disclaimer">
-              This score is an experimental keyword and text similarity
-              indicator. It is not an official ATS score, a complete evaluation
-              of candidate suitability, or a hiring decision. Add missing skills
-              only when they accurately reflect your abilities.
+              ResumeIQ uses experimental rule-based skill matching and TF-IDF
+              text similarity. It does not provide an official ATS score or a
+              hiring decision. Add a missing skill to your resume only when it
+              accurately reflects your abilities.
             </p>
           </section>
         )}

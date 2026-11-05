@@ -11,6 +11,12 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 app = Flask(__name__)
+@app.route("/api/health", methods=["GET"])
+def health_check():
+    return jsonify({
+        "status": "success",
+        "message": "ResumeIQ Backend is running!"
+    })
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
 
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
