@@ -190,7 +190,9 @@ function App() {
           <BrainCircuit size={27} />
           <span>ResumeIQ</span>
         </a>
-        <span className="nav-label">Resume & Job Match Analyzer</span>
+        <span className="nav-label">
+          Resume & Job Match Analyzer Developed by Lashini Chamodi
+        </span>
       </nav>
 
       <main className="main-container">
@@ -569,7 +571,10 @@ function App() {
       </main>
 
       <footer>
-        <p>ResumeIQ © 2026 · Built with React & Python · Developed by Lashini Chamodi</p>
+        <p>
+          ResumeIQ © 2026 · Built with React & Python · Developed by Lashini
+          Chamodi
+        </p>
       </footer>
     </div>
   );
