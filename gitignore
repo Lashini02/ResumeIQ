@@ -1,5 +1,25 @@
 .venv/
 venv/
-__pycache__/
-*.pyc
+**pycache**/
+\*.pyc
 .env
+
+# Python
+
+**pycache**/
+\*.pyc
+backend/venv/
+
+# React
+
+frontend/node_modules/
+frontend/dist/
+
+# Environment variables
+
+.env
+.env.\*
+
+# IDE
+
+.vscode/
